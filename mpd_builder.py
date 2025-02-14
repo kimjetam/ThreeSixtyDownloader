@@ -95,7 +95,7 @@ def get_missing_segments(xml):
 
         print(f"success: {full_url}")
         
-    return missing_segments, query_param
+    return missing_segments, query_param, last_original_segment_url
     
 def enrich_mpd(mpd_content):
     if not is_valid_xml(mpd_content):
@@ -104,7 +104,8 @@ def enrich_mpd(mpd_content):
 
     xml_root = ET.fromstring(mpd_content)
      
-    missing_segments, query_param = get_missing_segments(xml_root)
+    missing_segments, query_param, last_segment = get_missing_segments(xml_root)
+    representations = xml_root.findall(f".//{ns('Representation')}")
     
     if len(missing_segments) == 0:
         print("MPD file was already complete. Video is not locked to public.")
@@ -119,9 +120,10 @@ def enrich_mpd(mpd_content):
 
             segment_list = rep.find(f".//{ns('SegmentList')}")
             if segment_list is not None:
-                for i in range(int(re.search(m4s_pattern, last_segment).group(1)) + 1, int(re.search(m4s_pattern, latest_string).group(1)) + 1):
+                for ms in missing_segments:
+                    num = re.search(m4s_pattern, ms).group(1)
                     prefix = "und_" if idx == len(representations) - 1 else ""
-                    new_segment = ET.Element(ns("SegmentURL"), {"media": f"{prefix}{i}.m4s?{query}"})
+                    new_segment = ET.Element(ns("SegmentURL"), {"media": f"{prefix}{num}.m4s?{query_param}"})
                     segment_list.append(new_segment)
 
     return ET.tostring(xml_root, encoding="unicode")
