@@ -1,0 +1,1 @@
+ffmpeg -i "index.mpd" -map 0:v:2 -map 0:a:0 -c copy output.mp4
