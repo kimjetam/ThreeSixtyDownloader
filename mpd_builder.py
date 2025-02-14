@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import re
 import sys
 import argparse
+import os
 
 sys.stdout.reconfigure(line_buffering=True)
 mpd_file_urls = []
@@ -95,20 +96,12 @@ def get_missing_segments(xml):
         print(f"success: {full_url}")
         
     return missing_segments, query_param
-        
-def main(url, mpd_name, output_dir, timeout):
-    run_browser(url, timeout)
-    mpd_content = fetch_mpd_content()
     
-    if mpd_content == None:
-        print("Error: Failed to fetch MPD content.", flush=True)
-        sys.exit(1)  # Exits the script with a non-zero status (indicating an error)
-    
-    
+def enrich_mpd(mpd_content):
     if not is_valid_xml(mpd_content):
         print("Error: The fetched MPD file has incorrect format", flush=True)
         sys.exit(1)  # Exits the script with a non-zero status (indicating an error)
-        
+
     xml_root = ET.fromstring(mpd_content)
      
     missing_segments, query_param = get_missing_segments(xml_root)
@@ -131,18 +124,32 @@ def main(url, mpd_name, output_dir, timeout):
                     new_segment = ET.Element(ns("SegmentURL"), {"media": f"{prefix}{i}.m4s?{query}"})
                     segment_list.append(new_segment)
 
-    final_mpd = ET.tostring(xml_root, encoding="unicode")
-    with open("index.mpd", "w") as file:
+    return ET.tostring(xml_root, encoding="unicode")
+
+        
+def main(url, filename, output_dir, timeout):
+    run_browser(url, timeout)
+    mpd_content = fetch_mpd_content()
+    
+    if mpd_content == None:
+        print("Error: Failed to fetch MPD content.", flush=True)
+        sys.exit(1)  # Exits the script with a non-zero status (indicating an error)
+    
+    final_mpd = enrich_mpd(mpd_content)
+    full_path = os.path.join(output_dir, filename)
+
+    print(f"DONE. Saving to {full_path}")
+    with open(full_path, "w") as file:
         file.write(final_mpd)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MPD Builder")
-    parser.add_argument("--url", required=True, help="URL of the video page")
-    parser.add_argument("--mpd_name", default="index.mpd", help="MPD output file name")
+    parser.add_argument("--url", required=True, help="(required) URL of the video page")
+    parser.add_argument("--filename", default="index.mpd", help="MPD output file name")
     parser.add_argument("--output_dir", default=".", help="output folder for mpd file")
     parser.add_argument("--timeout", type=int, default=10000, help="Timeout for video page request interception in milliseconds (default: 10000)")
     
     args = parser.parse_args()
     
-    main(args.url, args.mpd_name, args.output_dir, args.timeout)
+    main(args.url, args.filename, args.output_dir, args.timeout)
 
