@@ -15,9 +15,9 @@ First you need to download MPD file for a specific 360tka video url. You just th
 ```
 python mpd_builder --url http://url_to_your_video
 ```
-At this point, the mpd file should be downloaded and stored to the location you specified (default is the folder where you are running the script from). See the possible script arguments with `python mpd_builder.py --helm`.
+At this point, the mpd file should be downloaded and stored to the location you specified (default is the folder where you are running the script from). See the possible script arguments with `python mpd_builder.py --help`.
 
-Second step is to run `video_builder.py` script, which uses ffmpeg to create a video out from that mpd file. See the possible script arguments with `python video_builder.py --helm`
+Second step is to run `video_builder.py` script, which uses ffmpeg to create a video out from that mpd file. See the possible script arguments with `python video_builder.py --help`
 
 Alternatively, you can just directly call ffmpeg without python script, with this command:
 ```
