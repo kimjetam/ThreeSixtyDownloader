@@ -117,12 +117,16 @@ def enrich_mpd(mpd_content):
             print(f"\nrepresentation id: {rep_id}")
             base_url = rep.find(f".//{ns('BaseURL')}")
             print(f"base url: {base_url.text}")
+            prefix = "und_" if idx == len(representations) - 1 else ""
+            num = re.search(m4s_pattern, last_segment).group(1)
+            last_original_segment = ET.Element(ns("SegmentURL"), {"media": f"{prefix}{num}.m4s?{query_param}"})
 
             segment_list = rep.find(f".//{ns('SegmentList')}")
+            segment_list[-1] = last_original_segment
+            
             if segment_list is not None:
                 for ms in missing_segments:
                     num = re.search(m4s_pattern, ms).group(1)
-                    prefix = "und_" if idx == len(representations) - 1 else ""
                     new_segment = ET.Element(ns("SegmentURL"), {"media": f"{prefix}{num}.m4s?{query_param}"})
                     segment_list.append(new_segment)
 
