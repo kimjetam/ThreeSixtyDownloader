@@ -105,31 +105,31 @@ rep_idx_mapping = {
 # Create main window
 root = tk.Tk()
 root.title("Three Sixty Downloader")
-root.geometry("700x500")
+root.geometry("900x700")
 
 # URL Input
 tk.Label(root, text="Input URL:").pack(pady=5)
 url_var = tk.StringVar()
 url_var.trace_add("write", on_url_change)
-url_entry = tk.Entry(root, width=50, textvariable=url_var)
+url_entry = tk.Entry(root, width=100, textvariable=url_var)
 url_entry.pack(pady=5)
 
 # Output Folder Selection
 output_folder_var = tk.StringVar(value=default_folder)
 tk.Label(root, text="Output Folder:").pack(pady=5)
-output_folder_entry = tk.Entry(root, textvariable=output_folder_var, width=40, state="readonly")
+output_folder_entry = tk.Entry(root, textvariable=output_folder_var, width=100, state="readonly")
 output_folder_entry.pack(pady=5)
 tk.Button(root, text="Browse", command=select_output_folder).pack(pady=5)
 
 # Output Filename Input
 output_filename_var = tk.StringVar(value=default_filename)
 tk.Label(root, text="Output Filename:").pack(pady=5)
-output_filename_entry = tk.Entry(root, textvariable=output_filename_var, width=50)
+output_filename_entry = tk.Entry(root, textvariable=output_filename_var, width=100)
 output_filename_entry.pack(pady=5)
 
 # Rep Index Dropdown
 tk.Label(root, text="Select Video Quality:").pack(pady=5)
-rep_idx_var = tk.StringVar(value="1080p")  # Default value
+rep_idx_var = tk.StringVar(value="360p")  # Default value
 rep_idx_dropdown = tk.OptionMenu(root, rep_idx_var, *rep_idx_mapping.keys())
 rep_idx_dropdown.pack(pady=5)
 
