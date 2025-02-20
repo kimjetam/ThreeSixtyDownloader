@@ -58,18 +58,19 @@ def execute_logic():
                     append_output(f"mpd_builder failed with exit code {process.returncode}\n")
                     execute_button.config(state=tk.NORMAL)
                     return
-
-                process = subprocess.Popen(
-                    ["python", "video_builder.py", "--rep_idx", rep_idx, "--output_dir", output_folder, "--mpd_path", mpd_path, "--filename", filename],
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+                
+                process2 = subprocess.Popen(
+                    ["python", "video_builder.py", "--rep_idx", rep_idx, "--output_dir", output_folder, "--mpd_path", mpd_path, "--filename", filename, "--auto_overwrite"],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1
                 )
-
-                for line in iter(process.stdout.readline, ""):
+                
+                for line in iter(process2.stdout.readline, ""):
                     append_output(line)
+                    
+                process2.wait()
 
-                process.wait()
-                if process.returncode != 0:
-                    append_output(f"video_builder failed with exit code {process.returncode}\n")
+                if process2.returncode != 0:
+                    append_output(f"video_builder failed with exit code {process2.returncode}\n")
                     execute_button.config(state=tk.NORMAL)
                 else:
                     root.after(0, show_completion_popup)

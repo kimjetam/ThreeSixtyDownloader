@@ -5,10 +5,13 @@ import sys
 
 sys.stdout.reconfigure(line_buffering=True)
 
-def main(mpd_path, filename, output_dir, rep_idx):
+def main(mpd_path, filename, output_dir, rep_idx, auto_overwrite):
     # Define the output file path
     output_mp4 = os.path.join(output_dir, filename)
-    
+    overwrite_command = ""
+    if auto_overwrite:
+        overwrite_command = "-y"
+            
     # Print for debugging
     print(f"Output file: {output_mp4}")
     print(f"MPD path: {mpd_path}")
@@ -19,7 +22,8 @@ def main(mpd_path, filename, output_dir, rep_idx):
         "-map", f"0:v:{rep_idx}",     # Map the third video stream (0-based index)
         "-map", "0:a:0",     # Map the first audio stream
         "-c", "copy",        # Copy the streams without re-encoding
-        output_mp4         # Output file
+        output_mp4,         # Output file
+        overwrite_command
     ]
 
     # Let ffmpeg use the same stdout and stderr as the parent process
@@ -31,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--filename", default="output.mp4", help="Output video file name.")
     parser.add_argument("--output_dir", default=".", help="output folder for mpd file")
     parser.add_argument("--rep_idx", type=int, default=0, help="Representation index for the target resolution video. The mapping is following: 0: 1080, 1: 720, 2: 360")
-    
+    parser.add_argument("--auto_overwrite", default=False, action=argparse.BooleanOptionalAction, help="Option to automatically overwrite existing video files.")
     args = parser.parse_args()
     
-    main(args.mpd_path, args.filename, args.output_dir, args.rep_idx)
+    main(args.mpd_path, args.filename, args.output_dir, args.rep_idx, args.auto_overwrite)

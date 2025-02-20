@@ -15,7 +15,7 @@ query_pattern = r"contentId=([^&\"]+)"
 
 def handle_route(route):
     if "index.mpd" in route.request.url or "m4s" in route.request.url:
-        print(f"Blocking request to: {route.request.url}")
+        print("Found mpd file.")
         mpd_file_urls.append(route.request.url)
         route.abort()  
     else:
