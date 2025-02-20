@@ -106,6 +106,7 @@ rep_idx_mapping = {
 root = tk.Tk()
 root.title("Three Sixty Downloader")
 root.geometry("900x700")
+root.resizable(True, True)  # Allow resizing in both directions
 
 # URL Input
 tk.Label(root, text="Input URL:").pack(pady=5)
