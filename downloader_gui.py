@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 import os
 import threading
 import subprocess
+from scraper import get_element_text  # Import function from scraper.py
 
 def select_output_folder():
     folder_selected = filedialog.askdirectory()
@@ -81,6 +82,32 @@ def execute_logic():
 
     threading.Thread(target=process, daemon=True).start()
 
+def fetch_title():
+    """Fetches the <h1> element from the provided URL and fills output filename."""
+    fetch_button.config(state=tk.DISABLED)  # Disable button to prevent spamming
+    execute_button.config(state=tk.DISABLED) 
+    clear_output()  # Clear previous output
+
+    def process():
+        url = url_var.get().strip()
+        if not url:
+            append_output("Error: URL is empty.\n")
+            fetch_button.config(state=tk.NORMAL)
+            return
+
+        try:
+            title = get_element_text(url, "h1")  # Fetch H1 from the URL
+            output_filename_var.set(title + ".mp4")  # Set as filename
+            append_output(f"Fetched Title: {title}\n")
+
+        except Exception as e:
+            append_output(f"Error: {str(e)}\n")
+
+        fetch_button.config(state=tk.NORMAL)  # Re-enable button
+        execute_button.config(state=tk.NORMAL) 
+
+    threading.Thread(target=process, daemon=True).start()
+
 def append_output(text):
     output_text.config(state="normal")
     output_text.insert(tk.END, text)
@@ -115,6 +142,10 @@ url_var.trace_add("write", on_url_change)
 url_entry = tk.Entry(root, width=100, textvariable=url_var)
 url_entry.pack(pady=5)
 
+# Fetch Title Button
+fetch_button = tk.Button(root, text="Fetch Title", command=fetch_title)
+fetch_button.pack(pady=5)
+
 # Output Folder Selection
 output_folder_var = tk.StringVar(value=default_folder)
 tk.Label(root, text="Output Folder:").pack(pady=5)
@@ -140,7 +171,7 @@ overwrite_checkbox = tk.Checkbutton(root, text="Overwrite Existing Video File", 
 overwrite_checkbox.pack(pady=5)
 
 # Execute Button (Initially Disabled)
-execute_button = tk.Button(root, text="Execute", command=execute_logic, state=tk.DISABLED)
+execute_button = tk.Button(root, text="Download", command=execute_logic, state=tk.DISABLED)
 execute_button.pack(pady=5)
 
 # Output Log Area
