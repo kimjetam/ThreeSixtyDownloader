@@ -5,6 +5,7 @@
 output/
 **/*.mp4
 **/*.mpd
+config.json
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

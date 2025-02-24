@@ -4,6 +4,26 @@ import os
 import threading
 import subprocess
 from scraper import get_element_text  # Import function from scraper.py
+import json
+
+CONFIG_FILE = "config.json"
+
+def save_output_folder():
+    """Save the current output folder to a config file."""
+    config = {"output_folder": output_folder_var.get()}
+    with open(CONFIG_FILE, "w") as f:
+        json.dump(config, f)
+    append_output("Output folder saved!\n")
+
+def load_output_folder():
+    """Load the last saved output folder from a config file."""
+    if os.path.exists(CONFIG_FILE):
+        try:
+            with open(CONFIG_FILE, "r") as f:
+                config = json.load(f)
+            output_folder_var.set(config.get("output_folder", default_folder))
+        except Exception as e:
+            append_output(f"Error loading config: {str(e)}\n")
 
 def select_output_folder():
     folder_selected = filedialog.askdirectory()
@@ -147,7 +167,14 @@ fetch_button.pack(pady=2)
 tk.Label(left_frame, text="Output Folder:").pack(anchor="w")
 output_folder_entry = tk.Entry(left_frame, textvariable=output_folder_var, width=50, state="readonly")
 output_folder_entry.pack(fill="x", pady=2)
-tk.Button(left_frame, text="Browse", command=select_output_folder).pack(pady=2)
+
+# Create a frame to hold both buttons
+button_frame = tk.Frame(left_frame)
+button_frame.pack(fill="x", pady=2)
+
+# Add buttons inside the frame
+tk.Button(button_frame, text="Browse", command=select_output_folder).pack(side="left", padx=2)
+tk.Button(button_frame, text="Save", command=save_output_folder).pack(side="left", padx=2)
 
 tk.Label(left_frame, text="Output Filename:").pack(anchor="w")
 output_filename_entry = tk.Entry(left_frame, textvariable=output_filename_var, width=50)
@@ -182,4 +209,5 @@ output_frame.grid_rowconfigure(0, weight=1)
 
 clear_button = tk.Button(right_frame, text="Clear Output", command=clear_output)
 clear_button.pack(pady=5)
+load_output_folder()
 root.mainloop()
