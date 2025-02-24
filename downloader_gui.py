@@ -84,6 +84,7 @@ def execute_logic():
         rep_idx_label = rep_idx_var.get()
         rep_idx = rep_idx_mapping[rep_idx_label]
         overwrite = overwrite_var.get()
+        skip_mpd = skip_mpd_var.get()
 
         if not filename.endswith(".mp4"):
             filename += ".mp4"
@@ -96,22 +97,39 @@ def execute_logic():
             execute_button.config(state=tk.NORMAL)
             return
 
-        append_output(f"Running script with URL: {url}\n")
-        try:
-            process = subprocess.Popen(
-                ["python", "mpd_builder.py", "--url", url, "--output_dir", output_folder],
-                stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-            )
-
-            for line in iter(process.stdout.readline, ""):
-                append_output(line)
-            process.wait()
-            
-            if process.returncode != 0:
-                append_output(f"mpd_builder failed with exit code {process.returncode}\n")
+        # Check if skipping MPD builder
+        if skip_mpd:
+            if os.path.exists(mpd_path):
+                append_output(f"Skipping MPD builder, using existing {mpd_path}\n")
+            else:
+                append_output("Error: MPD file not found, but skipping was requested.\n")
                 execute_button.config(state=tk.NORMAL)
                 return
-            
+        else:
+            append_output(f"Running MPD builder with URL: {url}\n")
+            try:
+                process = subprocess.Popen(
+                    ["python", "mpd_builder.py", "--url", url, "--output_dir", output_folder],
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+                )
+
+                for line in iter(process.stdout.readline, ""):
+                    append_output(line)
+                process.wait()
+                
+                if process.returncode != 0:
+                    append_output(f"mpd_builder failed with exit code {process.returncode}\n")
+                    execute_button.config(state=tk.NORMAL)
+                    return
+
+            except Exception as e:
+                append_output(f"MPD Builder Execution failed: {str(e)}\n")
+                execute_button.config(state=tk.NORMAL)
+                return
+
+        # Process 2 (video download)
+        append_output(f"Running video builder with rep_idx: {rep_idx}\n")
+        try:
             process2 = subprocess.Popen(
                 ["python", "video_builder.py", "--rep_idx", rep_idx, "--output_dir", output_folder, "--mpd_path", mpd_path, "--filename", filename, "--auto_overwrite"],
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
@@ -127,8 +145,9 @@ def execute_logic():
                 execute_button.config(state=tk.NORMAL)
             else:
                 root.after(0, show_completion_popup)
+
         except Exception as e:
-            append_output(f"Execution failed: {str(e)}\n")
+            append_output(f"Video Builder Execution failed: {str(e)}\n")
             execute_button.config(state=tk.NORMAL)
 
     threading.Thread(target=process, daemon=True).start()
@@ -148,6 +167,7 @@ output_folder_var = tk.StringVar(value=default_folder)
 output_filename_var = tk.StringVar(value=default_filename)
 rep_idx_var = tk.StringVar(value="360p")
 overwrite_var = tk.BooleanVar(value=False)
+skip_mpd_var = tk.BooleanVar(value=False)  # Variable for the new checkbox
 
 # Layout Frames
 left_frame = tk.Frame(root, padx=10, pady=10)
@@ -186,6 +206,9 @@ rep_idx_dropdown.pack(fill="x", pady=2)
 
 overwrite_checkbox = tk.Checkbutton(left_frame, text="Overwrite Existing Video File", variable=overwrite_var)
 overwrite_checkbox.pack()
+
+skip_mpd_checkbox = tk.Checkbutton(left_frame, text="Skip MPD Builder", variable=skip_mpd_var)
+skip_mpd_checkbox.pack()
 
 execute_button = tk.Button(left_frame, text="Download", command=execute_logic, state=tk.DISABLED)
 execute_button.pack(pady=5)
