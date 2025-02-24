@@ -164,12 +164,21 @@ execute_button.pack(pady=5)
 
 # Right Panel - Output Log
 tk.Label(right_frame, text="Output Log:").pack()
-output_text = tk.Text(right_frame, wrap=tk.WORD, state="disabled", height=15)
-output_text.pack(fill="both", expand=True)
-scrollbar = tk.Scrollbar(right_frame, command=output_text.yview)
-scrollbar.pack(side="right", fill="y")
+
+output_frame = tk.Frame(right_frame)
+output_frame.pack(fill="both", expand=True)
+
+output_text = tk.Text(output_frame, wrap=tk.WORD, state="disabled", height=15)
+output_text.grid(row=0, column=0, sticky="nsew")
+
+scrollbar = tk.Scrollbar(output_frame, command=output_text.yview)
+scrollbar.grid(row=0, column=1, sticky="ns")
+
 output_text.config(yscrollcommand=scrollbar.set)
+
+output_frame.grid_columnconfigure(0, weight=1)
+output_frame.grid_rowconfigure(0, weight=1)
+
 clear_button = tk.Button(right_frame, text="Clear Output", command=clear_output)
 clear_button.pack(pady=5)
-
 root.mainloop()
