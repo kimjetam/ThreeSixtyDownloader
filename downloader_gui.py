@@ -12,6 +12,7 @@ def select_output_folder():
 
 def on_url_change(*args):
     execute_button.config(state=tk.NORMAL if url_entry.get().strip() else tk.DISABLED)
+    fetch_button.config(state=tk.NORMAL if url_entry.get().strip() else tk.DISABLED)
 
 def clear_output():
     output_text.config(state="normal")
@@ -31,7 +32,7 @@ def show_completion_popup():
 def fetch_title():
     fetch_button.config(state=tk.DISABLED)
     execute_button.config(state=tk.DISABLED)
-    clear_output()
+    append_output(f"Fetching title...\n")
 
     def process():
         url = url_var.get().strip()
@@ -140,7 +141,7 @@ root.grid_rowconfigure(0, weight=1)
 tk.Label(left_frame, text="Input URL:").pack(anchor="w")
 url_entry = tk.Entry(left_frame, textvariable=url_var, width=50)
 url_entry.pack(fill="x", pady=2)
-fetch_button = tk.Button(left_frame, text="Fetch Title", command=fetch_title)
+fetch_button = tk.Button(left_frame, text="Fetch Title", command=fetch_title, state=tk.DISABLED)
 fetch_button.pack(pady=2)
 
 tk.Label(left_frame, text="Output Folder:").pack(anchor="w")
