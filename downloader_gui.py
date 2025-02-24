@@ -204,14 +204,20 @@ tk.Label(left_frame, text="Select Video Quality:").pack(anchor="w")
 rep_idx_dropdown = tk.OptionMenu(left_frame, rep_idx_var, *rep_idx_mapping.keys())
 rep_idx_dropdown.pack(fill="x", pady=2)
 
-overwrite_checkbox = tk.Checkbutton(left_frame, text="Overwrite Existing Video File", variable=overwrite_var)
-overwrite_checkbox.pack()
+# Checkboxes aligned to the left
+overwrite_checkbox = tk.Checkbutton(left_frame, text="Overwrite Existing Video File", variable=overwrite_var, anchor="w")
+overwrite_checkbox.pack(fill="x", pady=2)
 
-skip_mpd_checkbox = tk.Checkbutton(left_frame, text="Skip MPD Builder", variable=skip_mpd_var)
-skip_mpd_checkbox.pack()
+skip_mpd_checkbox = tk.Checkbutton(left_frame, text="Skip Mpd Building Step", variable=skip_mpd_var, anchor="w")
+skip_mpd_checkbox.pack(fill="x", pady=2)
 
+# Spacer to push execute button to the bottom
+tk.Label(left_frame, text="").pack(expand=True, fill="both")
+
+# Execute button at the very bottom
 execute_button = tk.Button(left_frame, text="Download", command=execute_logic, state=tk.DISABLED)
-execute_button.pack(pady=5)
+execute_button.pack(fill="x", pady=5)
+
 
 # Right Panel - Output Log
 tk.Label(right_frame, text="Output Log:").pack()
